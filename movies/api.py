@@ -48,3 +48,8 @@ class RatingMoviesViewset(
     GenericViewSet):
     queryset = RatingMovie.objects.all()
     serializer_class = RatingMovieSerializer
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if (self.request.user.is_superuser == False):
+            qs = qs.filter(user=self.request.user)
+        return qs

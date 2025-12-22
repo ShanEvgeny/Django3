@@ -4,7 +4,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class TypeMovie(models.Model):
     title = models.TextField("Название")
-    description = models.TextField("Описание")
+    description = models.TextField("Описание", null = True)
     class Meta:
         verbose_name = "Тип произведения"
         verbose_name_plural = "Типы произведений"
@@ -12,7 +12,7 @@ class TypeMovie(models.Model):
         return self.title  
 class Director(models.Model):
     full_name = models.TextField("ФИО")
-    date_of_birth  = models.DateField("Дата рождения")
+    date_of_birth  = models.DateField("Дата рождения", null = True)
     short_biography = models.TextField("Краткая биография", null = True)
     class Meta:
         verbose_name = "Режиссер"
@@ -21,7 +21,7 @@ class Director(models.Model):
         return self.full_name
 class Genre(models.Model):
     title = models.TextField("Название")
-    description = models.TextField("Описание")
+    description = models.TextField("Описание", null = True)
     class Meta:
         verbose_name = "Жанр"
         verbose_name_plural = "Жанры"
@@ -42,6 +42,8 @@ class Movie(models.Model):
 class RatingMovie(models.Model):
     rating_value = models.PositiveIntegerField("Оценка", validators=[MinValueValidator(1), MaxValueValidator(10)])
     movie = models.ForeignKey('Movie', on_delete = models.CASCADE, verbose_name = "Название произведения", null = True)
+    user = models.ForeignKey('auth.User',on_delete = models.CASCADE, verbose_name='Пользователь',null = True)
     class Meta:
+        unique_together = ['movie','user']
         verbose_name = "Оценка"
         verbose_name_plural = "Оценки"

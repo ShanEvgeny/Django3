@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from model_bakery import baker
-
+from django.contrib.auth.models import User
 from movies.models import Genre, Director, Movie, TypeMovie, RatingMovie
 
 class GenresViewsetTestCase(TestCase):
@@ -252,19 +252,24 @@ class RatingMoviesViewsetTestCase(TestCase):
         self.client = APIClient()
     def test_get_list(self):
         mv = baker.make('Movie')
-        type_movie = baker.make("movies.RatingMovie", movie = mv)
+        usr = baker.make('auth.User')
+        type_movie = baker.make("movies.RatingMovie", movie = mv, user = usr)
+        self.client.force_login(usr)
         r = self.client.get('/api/ratings/')
         data = r.json()
         print(data)
         assert type_movie.id == data[0]['id']
         assert type_movie.rating_value == data[0]['rating_value']
         assert type_movie.movie.id == data[0]['movie']
+        assert type_movie.user.id == data[0]['user']
     
     def test_create(self):
         mv = baker.make('Movie')
+        usr = baker.make('auth.User')
+        self.client.force_login(usr)
         r = self.client.post("/api/ratings/",{
             'rating_value': 8,
-            'movie': mv.id
+            'movie': mv.id,
         })
         new_rating_movie_id = r.json()['id']
         type_movies = RatingMovie.objects.all()
@@ -274,7 +279,9 @@ class RatingMoviesViewsetTestCase(TestCase):
         assert new_type_movie.movie == mv
 
     def test_delete(self):
-        rating_movies = baker.make("RatingMovie",10)
+        usr = baker.make('auth.User')
+        self.client.force_login(usr)
+        rating_movies = baker.make("RatingMovie",10, user = usr)
         r = self.client.get('/api/ratings/')
         data = r.json()
         assert len(data) == 10
@@ -286,7 +293,9 @@ class RatingMoviesViewsetTestCase(TestCase):
         assert rating_movie_id_to_delete not in [i['id'] for i in data]
     
     def test_update(self):
-        rating_movies = baker.make("RatingMovie",10)
+        usr = baker.make('auth.User')
+        self.client.force_login(usr)
+        rating_movies = baker.make("RatingMovie",10, user = usr)
         rating_movie: RatingMovie = rating_movies[2]
         r = self.client.get(f'/api/ratings/{rating_movie.id}/')
         data = r.json()

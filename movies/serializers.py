@@ -18,6 +18,10 @@ class MovieSerializer(serializers.ModelSerializer):
         model = Movie
         fields = '__all__'
 class RatingMovieSerializer(serializers.ModelSerializer):
+    def create(self, validated_data): 
+        if 'request' in self.context:
+            validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
     class Meta:
         model = RatingMovie
         fields = '__all__'
