@@ -19,6 +19,7 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 from movies.api import GenresViewset, TypeMoviesViewset, DirectorsViewset, MoviesViewset, RatingMoviesViewset
+from general.api import UserProfilesViewSet
 
 router = DefaultRouter()
 router.register('genres',GenresViewset,basename = 'genres')
@@ -26,6 +27,7 @@ router.register('type_movies',TypeMoviesViewset,basename = 'type_movies')
 router.register('directors',DirectorsViewset,basename = 'directors')
 router.register('movies',MoviesViewset,basename = 'movies')
 router.register('ratings',RatingMoviesViewset,basename = 'ratings')
+router.register('users', UserProfilesViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls))

@@ -1,5 +1,34 @@
 <script setup>
+    import { computed, onBeforeMount, ref } from 'vue';
+    import axios from 'axios';
+    import Cookies from 'js-cookie';
+    import { useUserInfoStore } from './stores/user_info_store';
+    import { storeToRefs } from 'pinia';
+    import { useRouter } from 'vue-router';
+    
+    // const username = ref();
+    // const password = ref();
+    const router = useRouter();
+    const userInfoStore = useUserInfoStore();
+    const {
+        is_authenticated
+    } = storeToRefs(userInfoStore)
 
+    // async function onLoginFormSublit(){
+    //     const r = await axios.post('/api/users/login/',{
+    //         username: username.value,
+    //         password: password.value,
+    //     })
+    //     username.value = '';
+    //     password.value = '';
+    //     await userInfoStore.fetchUserInfo();
+    // }
+    async function onLogout() {
+        const r = await axios.post('/api/users/logout/');
+        await userInfoStore.fetchUserInfo();
+        router.push('/login');
+    }
+    
 </script>
 
 <template>
@@ -38,6 +67,11 @@
                                     <a class = "dropdown-item" href="/admin">Админка</a>
                                 </li>
                             </ul>
+                        </li>
+                        <li>
+                            <button @click = "onLogout()" v-if="is_authenticated" class = "btn btn-danger">
+                                Выйти
+                            </button>
                         </li>
                     </ul>
                 </div>

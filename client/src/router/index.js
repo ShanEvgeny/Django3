@@ -4,10 +4,17 @@ import DirectorsView from '@/views/DirectorsView.vue'
 import GenresView from '@/views/GenresView.vue'
 import TypeMoviesView from '@/views/TypeMoviesView.vue'
 import RatingMoviesView from '@/views/RatingMoviesView.vue'
+import Login from '@/views/Login.vue'
+import { useUserInfoStore } from '@/stores/user_info_store'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: "/login",
+      name: "Login",
+      component: Login
+    },
     {
       path: "/",
       name: "MoviesView",
@@ -34,6 +41,17 @@ const router = createRouter({
       component: RatingMoviesView
     },
   ],
+})
+
+router.afterEach((to, from) => {
+  const userInfoStore = useUserInfoStore();
+  
+  if (!userInfoStore.is_authenticated && to.name !== 'Login'){
+    return {
+      name: 'Login'
+    }
+  }
+  
 })
 
 export default router
