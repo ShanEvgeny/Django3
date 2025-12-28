@@ -6,23 +6,12 @@
     import { storeToRefs } from 'pinia';
     import { useRouter } from 'vue-router';
     
-    // const username = ref();
-    // const password = ref();
     const router = useRouter();
     const userInfoStore = useUserInfoStore();
     const {
         is_authenticated
     } = storeToRefs(userInfoStore)
 
-    // async function onLoginFormSublit(){
-    //     const r = await axios.post('/api/users/login/',{
-    //         username: username.value,
-    //         password: password.value,
-    //     })
-    //     username.value = '';
-    //     password.value = '';
-    //     await userInfoStore.fetchUserInfo();
-    // }
     async function onLogout() {
         const r = await axios.post('/api/users/logout/');
         await userInfoStore.fetchUserInfo();
