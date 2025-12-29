@@ -1,7 +1,5 @@
-<script setup>
-    import { computed, onBeforeMount, ref } from 'vue';
+<script setup>;
     import axios from 'axios';
-    import Cookies from 'js-cookie';
     import { useUserInfoStore } from './stores/user_info_store';
     import { storeToRefs } from 'pinia';
     import { useRouter } from 'vue-router';

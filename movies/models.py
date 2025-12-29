@@ -34,6 +34,7 @@ class Movie(models.Model):
     type_movie = models.ForeignKey('TypeMovie', on_delete = models.CASCADE,verbose_name='Тип произведения', null = True)
     directors = models.ManyToManyField('Director', related_name='movie_directors',verbose_name = 'Участники съемки')
     genres = models.ManyToManyField('Genre', related_name = 'movie_genres',verbose_name="Жанры")
+    picture = models.ImageField("Изображение", null=True, upload_to="movies")
     class Meta:
         verbose_name = "Кино"
         verbose_name_plural = "Кино"
