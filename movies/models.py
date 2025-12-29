@@ -14,6 +14,7 @@ class Director(models.Model):
     full_name = models.TextField("ФИО")
     date_of_birth  = models.DateField("Дата рождения", null = True)
     short_biography = models.TextField("Краткая биография", null = True)
+    picture = models.ImageField("Изображение", null=True, upload_to="directors")
     class Meta:
         verbose_name = "Режиссер"
         verbose_name_plural = "Режиссеры"

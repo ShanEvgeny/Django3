@@ -7,6 +7,12 @@
     const directors = ref({});
     const directorToAdd = ref({});
     const directorToEdit = ref({});
+    const directorsPictureRef = ref();
+    const directorsEditPictureRef = ref();
+    const directorAddImageURL = ref();
+    const directorEditImageURL = ref();
+    const directorModalImageURL = ref();
+    const directorModalShortBiography = ref();
     
     async function fetchDirectors(){
         const r = await axios.get("/api/directors/")
@@ -14,10 +20,23 @@
         directors.value = r.data
     }
     async function onDirectorAdd() {
-        await axios.post("/api/directors/", {
-            ...directorToAdd.value
+        const formData = new FormData();
+        if (directorsPictureRef.value.files[0]){
+            formData.append('picture',directorsPictureRef.value.files[0]);
+        }
+        formData.set('full_name',directorToAdd.value.full_name);
+        formData.append('date_of_birth',directorToAdd.value.date_of_birth);
+        formData.set('short_biography',directorToAdd.value.short_biography);
+        await axios.post("/api/directors/", formData, {
+            headers:{
+                'Content-Type': 'multipart/form-data'
+            }
+            // ...directorToAdd.value
         });
         await fetchDirectors();
+        directorToAdd.value = {}
+        directorsPictureRef.value.value = ''
+        directorAddImageURL.value = ''
     }
     async function onDirectorDelete(director){
         console.log(director);
@@ -25,13 +44,40 @@
         await fetchDirectors();
     }
     async function onDirectorEdit(director){
+        directorsEditPictureRef.value.value = ''
         directorToEdit.value = {...director};
+        directorEditImageURL.value = directorToEdit.value.picture
     }
     async function onDirectorUpdate(){
-        await axios.put(`/api/directors/${directorToEdit.value.id}/`,{
-            ...directorToEdit.value,
+        const formData = new FormData();
+        if (directorsEditPictureRef.value.files[0]){
+            formData.append('picture',directorsEditPictureRef.value.files[0]);
+        }
+        formData.set('full_name',directorToEdit.value.full_name);
+        formData.append('date_of_birth', directorToEdit.value.date_of_birth);
+        formData.set('short_biography',directorToEdit.value.short_biography);
+        await axios.put(`/api/directors/${directorToEdit.value.id}/`, formData, {
+            // ...directorToEdit.value,
+            headers:{
+                'Content-Type': 'multipart/form-data'
+            }
         });
         await fetchDirectors();
+        directorToEdit.value = {}
+    }
+    async function directorAddPictureChange(){
+        directorAddImageURL.value = URL.createObjectURL(directorsPictureRef.value.files[0])
+    }
+    async function directorEditPictureChange(){
+        console.log(123)
+        directorEditImageURL.value = URL.createObjectURL(directorsEditPictureRef.value.files[0])
+    }
+    async function onClickDirectorPicture(picture){
+        console.log(picture)
+        directorModalImageURL.value = picture
+    }
+    async function onClickDirectorShortBiography(short_biography) {
+        directorModalShortBiography.value = short_biography
     }
 
     onBeforeMount(async () => {
@@ -57,6 +103,12 @@
                             <label for="floatingInput">Дата рождения</label>
                         </div>
                     </div>
+                    <div class = "col-auto">
+                        <input class = "form-control" type="file" ref = "directorsPictureRef" @change="directorAddPictureChange()">
+                    </div>
+                    <div class = "col-auto">
+                        <img :src="directorAddImageURL" style = "max-height: 60px;" alt="">
+                    </div>
                 </div>
                 <br>
                 <div class = "row">
@@ -72,8 +124,17 @@
                 </div>
                 <div v-for="item in directors" class = 'director-item'>
                     <b>{{ item.full_name }}</b> 
-                    <b>{{ item.short_biography }}</b>
-                    <b>{{ item.date_of_birth }}</b> 
+                    <b>
+                        <div class = 'short-biography' data-bs-toggle="modal" 
+                            data-bs-target="#shortBiographyModal"
+                            @click = "onClickDirectorShortBiography(item.short_biography)">
+                            {{ item.short_biography }}
+                        </div>
+                    </b>
+                    <b>{{ item.date_of_birth }}</b>
+                    <div v-show = "item.picture" data-bs-toggle="modal" data-bs-target="#pictureModal">
+                        <img :src="item.picture" style = "max-height: 60px;" @click="onClickDirectorPicture(item.picture)">
+                    </div> 
                     <button class = 'btn btn-success' @click="onDirectorEdit(item)"
                         data-bs-toggle="modal" 
                         data-bs-target="#editDirectorModal">
@@ -106,6 +167,12 @@
                                     <label for="floatingInput">Дата рождения</label>
                                 </div>
                             </div>
+                            <div class = "col-auto">
+                                <input class = "form-control" type="file" ref = "directorsEditPictureRef" @change="directorEditPictureChange()">
+                            </div>
+                            <div class = "col-auto">
+                                <img :src="directorEditImageURL" style = "max-height: 60px;" alt="">
+                            </div>
                         </div>
                         <br>
                         <div class = "row">
@@ -126,6 +193,32 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="modal fade" id="pictureModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Изображение</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div v-show = "directorModalImageURL" class="modal-body">
+                    <img :src="directorModalImageURL" style = "max-height: 500px;" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="shortBiographyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Краткая биография</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <b>{{ directorModalShortBiography }}</b>
+                </div>
+            </div>
+        </div>
     </div>  
 </template>
 
@@ -136,8 +229,15 @@
         border: 1px solid silver;
         border-radius: 8px;
         display: grid;
-        grid-template-columns: 0.5fr 1fr auto auto auto;
+        grid-template-columns: 0.5fr 1fr auto auto auto auto;
         column-gap: 10px;
         justify-content: space-between;
+    }
+    .short-biography {
+        display: -webkit-box;
+        line-clamp: 1;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden
     }
 </style>

@@ -74,6 +74,8 @@
         });
         await fetchMovies();
         movieToAdd.value = {}
+        moviesPictureRef.value.value = ''
+        movieAddImageURL.value = ''
     }
     async function onMovieDelete(movie){
         console.log(movie);
