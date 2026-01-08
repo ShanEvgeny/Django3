@@ -43,6 +43,9 @@
                         <li class="nav-item">
                             <router-link class="nav-link active" to="/ratings">Оценки</router-link>
                         </li>
+                        <li class="nav-item">
+                            <router-link class="nav-link active" to="/stats">Статистика</router-link>
+                        </li>
                     </ul>
                     <ul class = 'navbar-nav'>
                         <li class = "nav-item dropdown">

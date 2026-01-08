@@ -99,7 +99,7 @@
         }
         formData.set('title', movieToEdit.value.title);
         formData.append('year_of_release', movieToEdit.value.year_of_release);
-        formData.set('brief_information', movieToEdit.value.brief_information);
+        formData.set('brief_information', movieToEdit.value.brief_information || '');
         formData.append('type_movie', movieToEdit.value.type_movie);
         selectedGenres.forEach(genreId => {
             formData.append('genres', genreId);
@@ -143,7 +143,6 @@
 </script>
 
 <template>
-    {{ movieModalImageURL }}
     <div class="container">
         <div class = 'p-2'>
             <form @submit.prevent.stop="onMovieAdd()">
@@ -234,6 +233,14 @@
                             {{ item.brief_information }}
                         </div>
                     </b>
+                    <div v-if = "item.avg_rating" class = "rating" :class="{
+                        'rating-good': item.avg_rating >= 7,
+                        'rating-medium': item.avg_rating < 7 && item.avg_rating >= 4,
+                        'rating-bad': item.avg_rating < 4
+                    }">
+                        <b>{{ item.avg_rating.toFixed(1) }}</b>
+                    </div>
+                    <b v-if = "!item.avg_rating">-</b>
                     <div v-show = "item.picture" data-bs-toggle="modal" data-bs-target="#pictureModal">
                         <img :src="item.picture" style = "max-height: 60px;" @click="onClickMoviePicture(item.picture)">
                     </div>
@@ -367,7 +374,7 @@
         border: 1px solid silver;
         border-radius: 8px;
         display: grid;
-        grid-template-columns: 0.5fr 0.35fr 0.5fr 0.5fr 0.5fr auto auto auto;
+        grid-template-columns: 0.5fr 0.35fr 0.5fr 0.5fr 0.5fr auto auto auto auto;
         column-gap: 10px;
         justify-content: space-between;
     }
@@ -376,7 +383,23 @@
         line-clamp: 2;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
-        overflow: hidden
+        overflow: hidden;
+    }
+    .rating{
+        // background-color: green; 
+        color: white; 
+        border-radius: 8px; 
+        padding: 0.5rem; 
+        text-align: center;
+        &-good {
+            background-color: rgb(18, 122, 67);
+        }
+        &-medium {
+            background-color: rgb(139, 138, 41);
+        }
+        &-bad {
+            background-color: rgb(138, 38, 38);
+        }
     }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

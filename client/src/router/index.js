@@ -4,6 +4,7 @@ import DirectorsView from '@/views/DirectorsView.vue'
 import GenresView from '@/views/GenresView.vue'
 import TypeMoviesView from '@/views/TypeMoviesView.vue'
 import RatingMoviesView from '@/views/RatingMoviesView.vue'
+import StatsView from '@/views/StatsView.vue'
 import Login from '@/views/Login.vue'
 import { useUserInfoStore } from '@/stores/user_info_store'
 
@@ -39,6 +40,11 @@ const router = createRouter({
       path: "/ratings",
       name: "RatingMoviesView",
       component: RatingMoviesView
+    },
+    {
+      path:'/stats',
+      name: "StatsView",
+      component: StatsView
     },
   ],
 })

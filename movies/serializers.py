@@ -14,6 +14,7 @@ class TypeMovieSerializer(serializers.ModelSerializer):
         model = TypeMovie
         fields = '__all__'
 class MovieSerializer(serializers.ModelSerializer):
+    avg_rating = serializers.FloatField(read_only=True)
     class Meta:
         model = Movie
         fields = '__all__'
