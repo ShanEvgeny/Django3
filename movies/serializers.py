@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
 from movies.models import Genre, Director, TypeMovie, Movie, RatingMovie
 
 class GenreSerializer(serializers.ModelSerializer):
