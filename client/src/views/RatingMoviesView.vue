@@ -28,6 +28,7 @@
             ...ratingMovieToAdd.value
         });
         await fetchRatingMovies();
+        ratingMovieToAdd.value = {};
     }
     async function onRatingMovieDelete(rating_movie){
         console.log(rating_movie);

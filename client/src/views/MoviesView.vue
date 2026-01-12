@@ -4,11 +4,13 @@
     import Multiselect from 'vue-multiselect';
     import Cookies from 'js-cookie';
     import _ from 'lodash';
+    import { useUserInfoStore } from '@/stores/user_info_store';
 
+    const userInfoStore = useUserInfoStore();
     const movies = ref([]);
-    const typeMovies = ref({});
-    const directors = ref({});
-    const genres = ref({});
+    const typeMovies = ref([]);
+    const directors = ref([]);
+    const genres = ref([]);
     const movieToAdd = ref({});
     const movieToEdit = ref({});
     const moviesPictureRef = ref();
@@ -68,9 +70,6 @@
             headers:{
                 'Content-Type': 'multipart/form-data'
             }
-            // ...movieToAdd.value,
-            // directors: movieToAdd.value.directors.map(dir => dir.id),
-            // genres: movieToAdd.value.genres.map(gnr => gnr.id)
         });
         await fetchMovies();
         movieToAdd.value = {}
@@ -88,7 +87,6 @@
         movieToEdit.value.directors = movieToEdit.value.directors.map(id => directorById.value[id]).filter(Boolean);
         movieToEdit.value.genres = movieToEdit.value.genres.map(id => genreById.value[id]).filter(Boolean);
         movieEditImageURL.value = movieToEdit.value.picture
-        //await movieEditPictureChange();
     }
     async function onMovieUpdate(){
         const formData = new FormData();
@@ -111,10 +109,6 @@
             headers:{
                 'Content-Type': 'multipart/form-data'
             }
-            // ...movieToEdit.value,
-            // directors: movieToEdit.value.directors.map(dir => dir.id),
-            // genres: movieToEdit.value.genres.map(gnr => gnr.id)
-            
         });
         await fetchMovies();
         movieToEdit.value = {}
@@ -145,7 +139,7 @@
 <template>
     <div class="container">
         <div class = 'p-2'>
-            <form @submit.prevent.stop="onMovieAdd()">
+            <form @submit.prevent.stop="onMovieAdd()" v-if = "userInfoStore.hasPermissions('general.can_create_objects')">
                 <div class = 'row'>
                     <div class = 'col-3'>
                         <div class = 'form-floating'>
@@ -213,49 +207,78 @@
                         <button class = 'btn btn-primary'>Добавить</button>
                     </div>
                 </div>
-                <div v-for="item in movies" class = 'movie-item'>
-                    <b>{{ item.title }} ({{ item.year_of_release }})</b> 
-                    <b>{{ typeMovieById[item.type_movie]?.title }}</b>
-                    <b>
-                        <div v-for="director in item.directors">
-                            {{ directorById[director]?.full_name }}
-                        </div>
-                    </b>
-                    <b>
-                        <div v-for="genre in item.genres">
-                            {{ genreById[genre]?.title }}
-                        </div>
-                    </b>
-                    <b>
-                        <div class = 'brief-information' data-bs-toggle="modal" 
-                            data-bs-target="#briefInfoModal"
-                            @click = "onClickMovieBriefInfo(item.brief_information)">
-                            {{ item.brief_information }}
-                        </div>
-                    </b>
-                    <div v-if = "item.avg_rating" class = "rating" :class="{
-                        'rating-good': item.avg_rating >= 7,
-                        'rating-medium': item.avg_rating < 7 && item.avg_rating >= 4,
-                        'rating-bad': item.avg_rating < 4
-                    }">
-                        <b>{{ item.avg_rating.toFixed(1) }}</b>
-                    </div>
-                    <b v-if = "!item.avg_rating">-</b>
-                    <div v-show = "item.picture" data-bs-toggle="modal" data-bs-target="#pictureModal">
-                        <img :src="item.picture" style = "max-height: 60px;" @click="onClickMoviePicture(item.picture)">
-                    </div>
-                    <button class = 'btn btn-success' @click="onMovieEdit(item)"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#editMovieModal">
-                        <i class="bi bi-pen-fill"></i>
-                    </button>
-                    <button class = 'btn btn-danger' @click="onMovieDelete(item)"><i class="bi bi-x-lg"></i></button>
-                </div>
             </form>
+            <br>
+            <div class = 'row'>
+                <div class = 'col'>
+                    <div class = 'form-floating'>
+                        <select name="" id="" class = 'form-select'>
+                            <option :value="t_m.id" v-for = "t_m in typeMovies">{{t_m.title}}</option>
+                        </select>
+                        <label for="floatingInput">Тип</label>
+                    </div>
+                </div>
+                <div class = 'col'>
+                    <div class = 'form-floating'>
+                        <select name="" id="" class = 'form-select'>
+                            <option :value="drctr.id" v-for = "drctr in directors">{{drctr.full_name}}</option>
+                        </select>
+                        <label for="floatingInput">Режиссер</label>
+                    </div>
+                </div>
+                <div class = 'col'>
+                    <div class = 'form-floating'>
+                        <select name="" id="" class = 'form-select'>
+                            <option :value="gnr.id" v-for = "gnr in genres">{{gnr.title}}</option>
+                        </select>
+                        <label for="floatingInput">Жанр</label>
+                    </div>
+                </div>
+            </div>
+            <div v-for="item in movies" class = 'movie-item'>
+                <b>{{ item.title }} ({{ item.year_of_release }})</b> 
+                <b>{{ typeMovieById[item.type_movie]?.title }}</b>
+                <b>
+                    <div v-for="director in item.directors">
+                        {{ directorById[director]?.full_name }}
+                    </div>
+                </b>
+                <b>
+                    <div v-for="genre in item.genres">
+                        {{ genreById[genre]?.title }}
+                    </div>
+                </b>
+                <b>
+                    <div class = 'brief-information' data-bs-toggle="modal" 
+                        data-bs-target="#briefInfoModal"
+                        @click = "onClickMovieBriefInfo(item.brief_information)">
+                        {{ item.brief_information }}
+                    </div>
+                </b>
+                <div v-if = "item.avg_rating" class = "rating" :class="{
+                    'rating-good': item.avg_rating >= 7,
+                    'rating-medium': item.avg_rating < 7 && item.avg_rating >= 4,
+                    'rating-bad': item.avg_rating < 4
+                }">
+                    <b>{{ item.avg_rating.toFixed(1) }}</b>
+                </div>
+                <b v-if = "!item.avg_rating">-</b>
+                <div v-show = "item.picture" data-bs-toggle="modal" data-bs-target="#pictureModal">
+                    <img :src="item.picture" style = "max-height: 60px;" @click="onClickMoviePicture(item.picture)">
+                </div>
+                <button v-if = "userInfoStore.hasPermissions('general.can_update_objects')" 
+                    class = 'btn btn-success' @click="onMovieEdit(item)"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editMovieModal">
+                    <i class="bi bi-pen-fill"></i>
+                </button>
+                <button v-if = "userInfoStore.hasPermissions('general.can_delete_objects')"
+                    class = 'btn btn-danger' @click="onMovieDelete(item)"><i class="bi bi-x-lg"></i></button>
+            </div>
         </div>
     </div>
     <!-- Модальное окно -->
-    <div class="modal fade" id="editMovieModal" tabindex="-1">
+    <div v-if = "userInfoStore.hasPermissions('general.can_update_objects')" class="modal fade" id="editMovieModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">

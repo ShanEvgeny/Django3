@@ -3,7 +3,9 @@
     import axios from 'axios';
     import Cookies from 'js-cookie';
     import _ from 'lodash';
+    import { useUserInfoStore } from '@/stores/user_info_store';
 
+    const userInfoStore = useUserInfoStore();
     const genres = ref({});
     const genreToAdd = ref({});
     const genreToEdit = ref({});
@@ -18,6 +20,7 @@
             ...genreToAdd.value
         });
         await fetchGenres();
+        genreToAdd.value = {};
     }
     async function onGenreDelete(genre){
         console.log(genre);
@@ -43,7 +46,7 @@
 <template>
     <div class="container">
         <div class = "p-2">
-            <form @submit.prevent.stop = "onGenreAdd()">
+            <form @submit.prevent.stop = "onGenreAdd()" v-if = "userInfoStore.hasPermissions('general.can_create_objects')">
                 <div class = "row">
                     <div class = "col-3">
                         <div class = 'form-floating'>
@@ -61,20 +64,24 @@
                         <button class = 'btn btn-primary'>Добавить</button>
                     </div>
                 </div>
-                <div v-for="item in genres" class = 'genre-item'>
-                    <b>{{ item.title }}</b> 
-                    <b>{{ item.description }}</b> 
-                    <button class = 'btn btn-success' @click="onGenreEdit(item)"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#editGenreModal">
-                        <i class="bi bi-pen-fill"></i>
-                    </button>
-                    <button class = 'btn btn-danger' @click="onGenreDelete(item)"><i class="bi bi-x-lg"></i></button>
-                </div>
             </form>
+            <div v-for="item in genres" class = 'genre-item'>
+                <b>{{ item.title }}</b> 
+                <b>{{ item.description }}</b> 
+                <button v-if = "userInfoStore.hasPermissions('general.can_update_objects')"
+                    class = 'btn btn-success' @click="onGenreEdit(item)"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editGenreModal">
+                    <i class="bi bi-pen-fill"></i>
+                </button>
+                <button v-if = "userInfoStore.hasPermissions('general.can_delete_objects')"
+                    class = 'btn btn-danger' @click="onGenreDelete(item)">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
         </div>
     </div>
-    <div class="modal fade" id="editGenreModal" tabindex="-1">
+    <div v-if = "userInfoStore.hasPermissions('general.can_update_objects')" class="modal fade" id="editGenreModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

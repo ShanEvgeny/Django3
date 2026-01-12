@@ -3,7 +3,9 @@
     import axios from 'axios';
     import Cookies from 'js-cookie';
     import _ from 'lodash';
+    import { useUserInfoStore } from '@/stores/user_info_store';
 
+    const userInfoStore = useUserInfoStore();
     const directors = ref({});
     const directorToAdd = ref({});
     const directorToEdit = ref({});
@@ -89,7 +91,7 @@
 <template>
     <div class="container">
         <div class = "p-2">
-            <form @submit.prevent.stop = "onDirectorAdd()">
+            <form @submit.prevent.stop = "onDirectorAdd()" v-if = "userInfoStore.hasPermissions('general.can_create_objects')">
                 <div class = "row">
                     <div class = "col">
                         <div class = 'form-floating'>
@@ -122,30 +124,34 @@
                         <button class = 'btn btn-primary'>Добавить</button>
                     </div>
                 </div>
-                <div v-for="item in directors" class = 'director-item'>
-                    <b>{{ item.full_name }}</b> 
-                    <b>
-                        <div class = 'short-biography' data-bs-toggle="modal" 
-                            data-bs-target="#shortBiographyModal"
-                            @click = "onClickDirectorShortBiography(item.short_biography)">
-                            {{ item.short_biography }}
-                        </div>
-                    </b>
-                    <b>{{ item.date_of_birth }}</b>
-                    <div v-show = "item.picture" data-bs-toggle="modal" data-bs-target="#pictureModal">
-                        <img :src="item.picture" style = "max-height: 60px;" @click="onClickDirectorPicture(item.picture)">
-                    </div> 
-                    <button class = 'btn btn-success' @click="onDirectorEdit(item)"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#editDirectorModal">
-                        <i class="bi bi-pen-fill"></i>
-                    </button>
-                    <button class = 'btn btn-danger' @click="onDirectorDelete(item)"><i class="bi bi-x-lg"></i></button>
-                </div>
             </form>
+            <div v-for="item in directors" class = 'director-item'>
+                <b>{{ item.full_name }}</b> 
+                <b>
+                    <div class = 'short-biography' data-bs-toggle="modal" 
+                        data-bs-target="#shortBiographyModal"
+                        @click = "onClickDirectorShortBiography(item.short_biography)">
+                        {{ item.short_biography }}
+                    </div>
+                </b>
+                <b>{{ item.date_of_birth }}</b>
+                <div v-show = "item.picture" data-bs-toggle="modal" data-bs-target="#pictureModal">
+                    <img :src="item.picture" style = "max-height: 60px;" @click="onClickDirectorPicture(item.picture)">
+                </div> 
+                <button v-if = "userInfoStore.hasPermissions('general.can_update_objects')"
+                    class = 'btn btn-success' @click="onDirectorEdit(item)"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editDirectorModal">
+                    <i class="bi bi-pen-fill"></i>
+                </button>
+                <button v-if = "userInfoStore.hasPermissions('general.can_delete_objects')"
+                    class = 'btn btn-danger' @click="onDirectorDelete(item)">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
         </div>
     </div>
-    <div class="modal fade" id="editDirectorModal" tabindex="-1">
+    <div v-if = "userInfoStore.hasPermissions('general.can_update_objects')" class="modal fade" id="editDirectorModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">

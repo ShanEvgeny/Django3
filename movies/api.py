@@ -3,10 +3,12 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Avg, Count, Min, Max
 
 from movies.models import Genre,TypeMovie,Director,Movie,RatingMovie
 from movies.serializers import GenreSerializer, TypeMovieSerializer, DirectorSerializer, MovieSerializer, RatingMovieSerializer
+from movies.permissions import IsModerator
 
 class GenresViewset(
     mixins.CreateModelMixin,
@@ -17,6 +19,12 @@ class GenresViewset(
     GenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    def get_permissions(self):
+        if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsModerator]
+        return [permission() for permission in permission_classes]
     class StatsSerializer(serializers.Serializer):
         count = serializers.IntegerField()
         min = serializers.IntegerField()
@@ -42,6 +50,12 @@ class DirectorsViewset(
     GenericViewSet):
     queryset = Director.objects.all()
     serializer_class = DirectorSerializer
+    def get_permissions(self):
+        if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsModerator]
+        return [permission() for permission in permission_classes]
     class StatsSerializer(serializers.Serializer):
         count_directors = serializers.IntegerField()
         avg_birthday = serializers.FloatField()
@@ -68,6 +82,12 @@ class TypeMoviesViewset(
     GenericViewSet):
     queryset = TypeMovie.objects.all()
     serializer_class = TypeMovieSerializer
+    def get_permissions(self):
+        if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsModerator]
+        return [permission() for permission in permission_classes]
     class StatsSerializer(serializers.Serializer):
         count = serializers.IntegerField()
         min = serializers.IntegerField()
@@ -93,6 +113,12 @@ class MoviesViewset(
     GenericViewSet):
     queryset = Movie.objects.annotate(avg_rating = Avg('ratingmovie__rating_value')).all()
     serializer_class = MovieSerializer
+    def get_permissions(self):
+        if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsModerator]
+        return [permission() for permission in permission_classes]
     class StatsSerializer(serializers.Serializer):
         count_movies = serializers.IntegerField()
         avg_year_of_release = serializers.FloatField()
@@ -119,6 +145,7 @@ class RatingMoviesViewset(
     GenericViewSet):
     queryset = RatingMovie.objects.all()
     serializer_class = RatingMovieSerializer
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         qs = super().get_queryset()
         if (self.request.user.is_superuser == False):

@@ -11,6 +11,13 @@ class UserProfile(models.Model):
     date_of_birth = models.TextField(null = True)
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     type = models.TextField(choices = Type, null = True)
+    class Meta:
+        permissions = [
+            ('can_create_objects', 'Может создавать объекты'),
+            ('can_read_objects', 'Может просматривать информацию об объектах'),
+            ('can_update_objects', 'Может обновлять объекты'),
+            ('can_delete_objects', 'Может удалять объекты'),
+        ]
 
 @receiver(post_save, sender = User)
 def create_user_profile(sender, instance, created, **kwargs):
