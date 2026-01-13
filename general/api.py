@@ -11,12 +11,15 @@ class UserProfilesViewSet(GenericViewSet):
     @action(url_path='my', methods=['GET'], detail=False)
     def get_my(self, *args, **kwargs):
         permissions = self.request.user.get_all_permissions()
-        return Response ({
+        data = {
             'username': self.request.user.username,
             'is_authenticated': self.request.user.is_authenticated,
             'is_staff': self.request.user.is_staff,
             'permissions': permissions,
-        })
+        }
+        if self.request.user.is_authenticated:
+            data.update({'second': self.request.session.get('second') or False})
+        return Response (data)
     @action(url_path='login', methods=['POST'], detail=False)
     def process_login(self, *args, **kwargs):
         class LoginSerializer(serializers.Serializer):
@@ -39,6 +42,14 @@ class UserProfilesViewSet(GenericViewSet):
     @action(url_path='logout', methods=['POST'], detail=False)
     def process_logout(self, *args, **kwargs):
         logout(self.request)
+        return Response({
+            'status': 'success'
+        })
+    @action(url_path='second-login', methods=['POST'], detail=False)
+    def second_login(self, *args, **kwargs):
+        key = self.request.data.get('key')
+        if key == '12345':
+            self.request.session['second'] = True
         return Response({
             'status': 'success'
         })

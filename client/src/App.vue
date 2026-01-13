@@ -46,6 +46,9 @@
                         <li class="nav-item">
                             <router-link class="nav-link active" to="/stats">Статистика</router-link>
                         </li>
+                        <li class="nav-item">
+                            <router-link class="nav-link active" to="/second-login">Второй фактор</router-link>
+                        </li>
                     </ul>
                     <ul class = 'navbar-nav'>
                         <li class = "nav-item dropdown">

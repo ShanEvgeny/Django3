@@ -7,6 +7,7 @@ import RatingMoviesView from '@/views/RatingMoviesView.vue'
 import StatsView from '@/views/StatsView.vue'
 import Login from '@/views/Login.vue'
 import { useUserInfoStore } from '@/stores/user_info_store'
+import SecondLogin from '@/views/SecondLogin.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,6 +46,11 @@ const router = createRouter({
       path:'/stats',
       name: "StatsView",
       component: StatsView
+    },
+    {
+      path:'/second-login',
+      name: "SecondLogin",
+      component: SecondLogin
     },
   ],
 })

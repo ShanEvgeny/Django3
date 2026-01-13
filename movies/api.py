@@ -3,12 +3,12 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.db.models import Avg, Count, Min, Max
 
 from movies.models import Genre,TypeMovie,Director,Movie,RatingMovie
 from movies.serializers import GenreSerializer, TypeMovieSerializer, DirectorSerializer, MovieSerializer, RatingMovieSerializer
-from movies.permissions import IsModerator
+from movies.permissions import IsModerator, SecondFactorPermission
 
 class GenresViewset(
     mixins.CreateModelMixin,
@@ -22,8 +22,10 @@ class GenresViewset(
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
             permission_classes = [IsAuthenticated]
+        elif self.action == 'update' or self.action == 'partial_update':
+            permission_classes = [(IsModerator & SecondFactorPermission) | (IsAdminUser & SecondFactorPermission)]
         else:
-            permission_classes = [IsModerator]
+            permission_classes = [IsModerator | IsAdminUser]
         return [permission() for permission in permission_classes]
     class StatsSerializer(serializers.Serializer):
         count = serializers.IntegerField()
@@ -53,8 +55,10 @@ class DirectorsViewset(
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
             permission_classes = [IsAuthenticated]
+        elif self.action == 'update' or self.action == 'partial_update':
+            permission_classes = [(IsModerator & SecondFactorPermission) | (IsAdminUser & SecondFactorPermission)]
         else:
-            permission_classes = [IsModerator]
+            permission_classes = [IsModerator | IsAdminUser]
         return [permission() for permission in permission_classes]
     class StatsSerializer(serializers.Serializer):
         count_directors = serializers.IntegerField()
@@ -85,8 +89,10 @@ class TypeMoviesViewset(
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
             permission_classes = [IsAuthenticated]
+        elif self.action == 'update' or self.action == 'partial_update':
+            permission_classes = [(IsModerator & SecondFactorPermission) | (IsAdminUser & SecondFactorPermission)]
         else:
-            permission_classes = [IsModerator]
+            permission_classes = [IsModerator | IsAdminUser]
         return [permission() for permission in permission_classes]
     class StatsSerializer(serializers.Serializer):
         count = serializers.IntegerField()
@@ -116,8 +122,10 @@ class MoviesViewset(
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
             permission_classes = [IsAuthenticated]
+        elif self.action == 'update' or self.action == 'partial_update':
+            permission_classes = [(IsModerator & SecondFactorPermission) | (IsAdminUser & SecondFactorPermission)]
         else:
-            permission_classes = [IsModerator]
+            permission_classes = [IsModerator | IsAdminUser]
         return [permission() for permission in permission_classes]
     class StatsSerializer(serializers.Serializer):
         count_movies = serializers.IntegerField()
@@ -145,7 +153,12 @@ class RatingMoviesViewset(
     GenericViewSet):
     queryset = RatingMovie.objects.all()
     serializer_class = RatingMovieSerializer
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        if self.action == 'update' or self.action == 'partial_update':
+            permission_classes = [SecondFactorPermission]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
     def get_queryset(self):
         qs = super().get_queryset()
         if (self.request.user.is_superuser == False):

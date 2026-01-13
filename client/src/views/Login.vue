@@ -1,7 +1,6 @@
 <script setup>
-    import { computed, onBeforeMount, ref } from 'vue';
+    import { ref } from 'vue';
     import axios from 'axios';
-    import Cookies from 'js-cookie';
     import { useUserInfoStore } from '@/stores/user_info_store';
     import { storeToRefs } from 'pinia';
     import { useRouter } from 'vue-router';
@@ -31,8 +30,8 @@
 <template>
     <div class = 'container'>
         <form @submit.stop.prevent="onLoginFormSublit()" class="form d-flex flex-column p-3" style = "gap: 8px">
-            <input placeholder="логин" class = 'form-control' type="text" v-model="username">
-            <input placeholder="пароль" class = 'form-control' type="password" v-model="password">
+            <input placeholder="логин" class = 'form-control' type="text" v-model="username" required>
+            <input placeholder="пароль" class = 'form-control' type="password" v-model="password" required>
             <button class = 'btn btn-primary'>Войти</button>
         </form>
     </div>
