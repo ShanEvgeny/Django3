@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from django.db.models import Avg, Count, Min, Max
+from django.db.models import Avg, Count, Min, Max, Prefetch
 
 from movies.models import Genre,TypeMovie,Director,Movie,RatingMovie
 from movies.serializers import GenreSerializer, TypeMovieSerializer, DirectorSerializer, MovieSerializer, RatingMovieSerializer
@@ -117,7 +117,9 @@ class MoviesViewset(
     mixins.DestroyModelMixin,
     mixins.ListModelMixin,
     GenericViewSet):
-    queryset = Movie.objects.annotate(avg_rating = Avg('ratingmovie__rating_value')).all()
+    queryset = Movie.objects.select_related('type_movie')\
+                            .prefetch_related('directors','genres')\
+                            .annotate(avg_rating = Avg('ratingmovie__rating_value')).all()
     serializer_class = MovieSerializer
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
@@ -151,7 +153,7 @@ class RatingMoviesViewset(
     mixins.DestroyModelMixin,
     mixins.ListModelMixin,
     GenericViewSet):
-    queryset = RatingMovie.objects.all()
+    queryset = RatingMovie.objects.select_related('movie').all()
     serializer_class = RatingMovieSerializer
     def get_permissions(self):
         if self.action == 'update' or self.action == 'partial_update':

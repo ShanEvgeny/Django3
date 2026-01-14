@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
 from django.contrib.auth import authenticate, login, logout
+import pyotp
 
 from general.models import UserProfile
 
@@ -45,10 +46,23 @@ class UserProfilesViewSet(GenericViewSet):
         return Response({
             'status': 'success'
         })
+    @action(url_path='get-totp', methods=['GET'], detail=False)
+    def get_totp(self, *args, **kwargs):
+        self.request.user.userprofile.totp_key = pyotp.random_base32()
+        self.request.user.userprofile.save()
+        url = pyotp.totp.TOTP(self.request.user.userprofile.totp_key).provisioning_uri(
+            name  = self.request.user.username,
+            issuer_name = 'Movies'
+        )
+        return Response({
+            'url': url
+        })
     @action(url_path='second-login', methods=['POST'], detail=False)
     def second_login(self, *args, **kwargs):
+        key = self.request.user.userprofile.totp_key
+        t = pyotp.totp.TOTP(key)
         key = self.request.data.get('key')
-        if key == '12345':
+        if key == t.now():
             self.request.session['second'] = True
         return Response({
             'status': 'success'

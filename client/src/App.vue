@@ -7,7 +7,8 @@
     const router = useRouter();
     const userInfoStore = useUserInfoStore();
     const {
-        is_authenticated
+        is_authenticated,
+        second
     } = storeToRefs(userInfoStore)
 
     async function onLogout() {
@@ -46,7 +47,7 @@
                         <li class="nav-item">
                             <router-link class="nav-link active" to="/stats">Статистика</router-link>
                         </li>
-                        <li class="nav-item">
+                        <li v-if = "second != true" class="nav-item">
                             <router-link class="nav-link active" to="/second-login">Второй фактор</router-link>
                         </li>
                     </ul>
@@ -70,7 +71,6 @@
                 </div>
             </div>
         </nav>
-
     </div>
     <div class = "container"><router-view/></div>
 </template>

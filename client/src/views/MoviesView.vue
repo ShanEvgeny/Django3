@@ -5,8 +5,12 @@
     import Cookies from 'js-cookie';
     import _ from 'lodash';
     import { useUserInfoStore } from '@/stores/user_info_store';
+    import { storeToRefs } from 'pinia';
 
     const userInfoStore = useUserInfoStore();
+    const {
+        second
+    } = storeToRefs(userInfoStore)
     const movies = ref([]);
     const typeMovies = ref([]);
     const directors = ref([]);
@@ -266,7 +270,7 @@
                 <div v-show = "item.picture" data-bs-toggle="modal" data-bs-target="#pictureModal">
                     <img :src="item.picture" style = "max-height: 60px;" @click="onClickMoviePicture(item.picture)">
                 </div>
-                <button v-if = "userInfoStore.hasPermissions('general.can_update_objects')" 
+                <button v-if = "userInfoStore.hasPermissions('general.can_update_objects') && second == true" 
                     class = 'btn btn-success' @click="onMovieEdit(item)"
                     data-bs-toggle="modal" 
                     data-bs-target="#editMovieModal">

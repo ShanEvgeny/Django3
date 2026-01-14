@@ -4,8 +4,12 @@
     import Cookies from 'js-cookie';
     import _ from 'lodash';
     import { useUserInfoStore } from '@/stores/user_info_store';
+    import { storeToRefs } from 'pinia';
 
     const userInfoStore = useUserInfoStore();
+    const {
+        second
+    } = storeToRefs(userInfoStore)
     const ratingMovies = ref({})
     const movies = ref({})
     const ratingMovieToAdd = ref({});
@@ -81,7 +85,7 @@
                     <b>{{ item.rating_value }}</b> 
                     <b>{{ movieById[item.movie]?.title }}</b>
                     <b>{{ item.user }}</b> 
-                    <button class = 'btn btn-success' @click="onRatingMovieEdit(item)"
+                    <button v-if = "second == true" class = 'btn btn-success' @click="onRatingMovieEdit(item)"
                         data-bs-toggle="modal" 
                         data-bs-target="#editRatingMovieModal">
                         <i class="bi bi-pen-fill"></i>

@@ -8,6 +8,7 @@ export const useUserInfoStore = defineStore("userInfoStore", () => {
     const is_authenticated = ref();
     const is_staff = ref();
     const permissions = ref([]);
+    const second = ref(null)
 
     async function fetchUserInfo(){
         const r = await axios.get('/api/users/my/');
@@ -15,6 +16,9 @@ export const useUserInfoStore = defineStore("userInfoStore", () => {
         is_authenticated.value = r.data.is_authenticated;
         is_staff.value = r.data.is_staff;
         permissions.value = r.data.permissions;
+        if (is_authenticated.value == true){
+            second.value = r.data.second
+        }
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
     }
     function hasPermissions(name){
@@ -26,6 +30,7 @@ export const useUserInfoStore = defineStore("userInfoStore", () => {
     return {
         username,
         is_authenticated,
+        second,
         fetchUserInfo,
         hasPermissions
     }
