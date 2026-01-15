@@ -5,15 +5,22 @@
     import _ from 'lodash';
     import { useUserInfoStore } from '@/stores/user_info_store';
     import { storeToRefs } from 'pinia';
+    import { useMoviesInfoStore } from '@/stores/movies_info_store';
 
     const userInfoStore = useUserInfoStore();
+    const moviesInfoStore = useMoviesInfoStore();
     const {
         second,
-        is_staff
+        is_staff,
+        users,
     } = storeToRefs(userInfoStore);
-    const ratingMovies = ref([]);
-    const movies = ref([]);
-    const users = ref([]);
+    const {
+        ratingMovies,
+        movies,
+    } = storeToRefs(moviesInfoStore);
+    // const ratingMovies = ref([]);
+    // const movies = ref([]);
+    // const users = ref([]);
     const ratingMovieToAdd = ref({});
     const ratingMovieToEdit = ref({});
     const userToFilter = ref('Все');
@@ -32,31 +39,31 @@
             (rating.user === userToFilter.value || userToFilter.value === 'Все')
         })
     })
-    async function fetchRatingMovies(){
-        const r = await axios.get("/api/ratings/")
-        console.log(r.data)
-        ratingMovies.value = r.data
-    } 
-    async function fetchMovies(){
-        const r = await axios.get("/api/movies/")
-        console.log(r.data)
-        movies.value = r.data
-    }
-    async function fetchUsers(){
-        const r = await axios.get('/api/users/')
-        users.value = r.data
-    }
+    // async function fetchRatingMovies(){
+    //     const r = await axios.get("/api/ratings/")
+    //     console.log(r.data)
+    //     ratingMovies.value = r.data
+    // } 
+    // async function fetchMovies(){
+    //     const r = await axios.get("/api/movies/")
+    //     console.log(r.data)
+    //     movies.value = r.data
+    // }
+    // async function fetchUsers(){
+    //     const r = await axios.get('/api/users/')
+    //     users.value = r.data
+    // }
     async function onRatingMovieAdd() {
         await axios.post("/api/ratings/", {
             ...ratingMovieToAdd.value
         });
-        await fetchRatingMovies();
+        await moviesInfoStore.fetchRatingMovies();
         ratingMovieToAdd.value = {};
     }
     async function onRatingMovieDelete(rating_movie){
         console.log(rating_movie);
         await axios.delete(`/api/ratings/${rating_movie.id}/`);
-        await fetchRatingMovies();
+        await moviesInfoStore.fetchRatingMovies();
     }
     async function onRatingMovieEdit(rating_movie){
         ratingMovieToEdit.value = {...rating_movie};
@@ -65,14 +72,14 @@
         await axios.put(`/api/ratings/${ratingMovieToEdit.value.id}/`,{
             ...ratingMovieToEdit.value,
         });
-        await fetchRatingMovies();
+        await moviesInfoStore.fetchRatingMovies();
     }
 
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
-        await fetchRatingMovies();
-        await fetchMovies();
-        await fetchUsers();
+        await moviesInfoStore.fetchRatingMovies();
+        await moviesInfoStore.fetchMovies();
+        await userInfoStore.fetchUsers();
     }) 
 </script>
 

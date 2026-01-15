@@ -5,31 +5,30 @@
     import _ from 'lodash';
     import { useUserInfoStore } from '@/stores/user_info_store';
     import { storeToRefs } from 'pinia';
+    import { useMoviesInfoStore } from '@/stores/movies_info_store';
 
     const userInfoStore = useUserInfoStore();
+    const moviesInfoStore = useMoviesInfoStore();
     const {
         second
     } = storeToRefs(userInfoStore)
-    const genres = ref({});
+    const {
+        genres
+    } = storeToRefs(moviesInfoStore);
     const genreToAdd = ref({});
     const genreToEdit = ref({});
     
-    async function fetchGenres(){
-        const r = await axios.get("/api/genres/")
-        console.log(r.data)
-        genres.value = r.data
-    }
     async function onGenreAdd() {
         await axios.post("/api/genres/", {
             ...genreToAdd.value
         });
-        await fetchGenres();
+        await moviesInfoStore.fetchGenres();
         genreToAdd.value = {};
     }
     async function onGenreDelete(genre){
         console.log(genre);
         await axios.delete(`/api/genres/${genre.id}/`);
-        await fetchGenres();
+        await moviesInfoStore.fetchGenres();
     }
     async function onGenreEdit(genre){
         genreToEdit.value = {...genre};
@@ -38,12 +37,12 @@
         await axios.put(`/api/genres/${genreToEdit.value.id}/`,{
             ...genreToEdit.value,
         });
-        await fetchGenres();
+        await moviesInfoStore.fetchGenres();
     }
 
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
-        await fetchGenres();
+        await moviesInfoStore.fetchGenres();
     })
 </script>
 

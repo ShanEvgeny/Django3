@@ -6,16 +6,20 @@
     import _ from 'lodash';
     import { useUserInfoStore } from '@/stores/user_info_store';
     import { storeToRefs } from 'pinia';
+    import { useMoviesInfoStore } from '@/stores/movies_info_store';
 
     const userInfoStore = useUserInfoStore();
+    const moviesInfoStore = useMoviesInfoStore();
     const {
         second,
         is_staff
     } = storeToRefs(userInfoStore)
-    const movies = ref([]);
-    const typeMovies = ref([]);
-    const directors = ref([]);
-    const genres = ref([]);
+    const {
+        movies,
+        typeMovies,
+        directors,
+        genres
+    } = storeToRefs(moviesInfoStore)
     const movieToAdd = ref({});
     const movieToEdit = ref({});
     const moviesPictureRef = ref();
@@ -44,26 +48,6 @@
         })
     })
     
-    async function fetchDirectors(){
-        const r = await axios.get("/api/directors/")
-        console.log(r.data)
-        directors.value = r.data
-    }
-    async function fetchGenres(){
-        const r = await axios.get("/api/genres/")
-        console.log(r.data)
-        genres.value = r.data
-    }
-    async function fetchTypeMovies(){
-        const r = await axios.get("/api/type_movies/")
-        console.log(r.data)
-        typeMovies.value = r.data
-    }
-    async function fetchMovies(){
-        const r = await axios.get("/api/movies/")
-        console.log(r.data)
-        movies.value = r.data
-    } 
     async function onMovieAdd() {
         const formData = new FormData();
         const selectedGenres = movieToAdd.value.genres.map(gnr => gnr.id);
@@ -86,7 +70,7 @@
                 'Content-Type': 'multipart/form-data'
             }
         });
-        await fetchMovies();
+        await moviesInfoStore.fetchMovies();
         movieToAdd.value = {}
         moviesPictureRef.value.value = ''
         movieAddImageURL.value = ''
@@ -94,7 +78,7 @@
     async function onMovieDelete(movie){
         console.log(movie);
         await axios.delete(`/api/movies/${movie.id}/`);
-        await fetchMovies();
+        await moviesInfoStore.fetchMovies();
     }
     async function onMovieEdit(movie){
         moviesEditPictureRef.value.value = ''
@@ -125,7 +109,7 @@
                 'Content-Type': 'multipart/form-data'
             }
         });
-        await fetchMovies();
+        await moviesInfoStore.fetchMovies();
         movieToEdit.value = {}
     }
     async function movieAddPictureChange(){
@@ -148,10 +132,10 @@
 
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
-        await fetchMovies();
-        await fetchTypeMovies();
-        await fetchDirectors();
-        await fetchGenres();
+        await moviesInfoStore.fetchMovies();
+        await moviesInfoStore.fetchTypeMovies();
+        await moviesInfoStore.fetchDirectors();
+        await moviesInfoStore.fetchGenres();
     })
 </script>
 

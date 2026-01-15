@@ -8,7 +8,8 @@ export const useUserInfoStore = defineStore("userInfoStore", () => {
     const is_authenticated = ref();
     const is_staff = ref();
     const permissions = ref([]);
-    const second = ref(null)
+    const second = ref(null);
+    const users = ref([]);
 
     async function fetchUserInfo(){
         const r = await axios.get('/api/users/my/');
@@ -24,6 +25,10 @@ export const useUserInfoStore = defineStore("userInfoStore", () => {
     function hasPermissions(name){
         return permissions.value.includes(name)
     }
+    async function fetchUsers(){
+        const r = await axios.get('/api/users/')
+        users.value = r.data
+    }
     onBeforeMount(async () => {
         await fetchUserInfo();
     })
@@ -32,7 +37,9 @@ export const useUserInfoStore = defineStore("userInfoStore", () => {
         is_authenticated,
         is_staff,
         second,
+        users,
         fetchUserInfo,
-        hasPermissions
+        hasPermissions,
+        fetchUsers,
     }
 })

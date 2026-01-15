@@ -5,12 +5,16 @@
     import _ from 'lodash';
     import { useUserInfoStore } from '@/stores/user_info_store';
     import { storeToRefs } from 'pinia';
+    import { useMoviesInfoStore } from '@/stores/movies_info_store';
 
     const userInfoStore = useUserInfoStore();
+    const moviesInfoStore = useMoviesInfoStore();
     const {
         second
     } = storeToRefs(userInfoStore)
-    const directors = ref({});
+    const {
+        directors
+    } = storeToRefs(moviesInfoStore)
     const directorToAdd = ref({});
     const directorToEdit = ref({});
     const directorsPictureRef = ref();
@@ -20,11 +24,6 @@
     const directorModalImageURL = ref();
     const directorModalShortBiography = ref();
     
-    async function fetchDirectors(){
-        const r = await axios.get("/api/directors/")
-        console.log(r.data)
-        directors.value = r.data
-    }
     async function onDirectorAdd() {
         const formData = new FormData();
         if (directorsPictureRef.value.files[0]){
@@ -39,7 +38,7 @@
             }
             // ...directorToAdd.value
         });
-        await fetchDirectors();
+        await moviesInfoStore.fetchDirectors();
         directorToAdd.value = {}
         directorsPictureRef.value.value = ''
         directorAddImageURL.value = ''
@@ -47,7 +46,7 @@
     async function onDirectorDelete(director){
         console.log(director);
         await axios.delete(`/api/directors/${director.id}/`);
-        await fetchDirectors();
+        await moviesInfoStore.fetchDirectors();
     }
     async function onDirectorEdit(director){
         directorsEditPictureRef.value.value = ''
@@ -68,7 +67,7 @@
                 'Content-Type': 'multipart/form-data'
             }
         });
-        await fetchDirectors();
+        await moviesInfoStore.fetchDirectors();
         directorToEdit.value = {}
     }
     async function directorAddPictureChange(){
@@ -88,7 +87,7 @@
 
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
-        await fetchDirectors();
+        await moviesInfoStore.fetchDirectors();
     })
 </script>
 

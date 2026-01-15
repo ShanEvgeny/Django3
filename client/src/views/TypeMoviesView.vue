@@ -5,31 +5,30 @@
     import _ from 'lodash';
     import { useUserInfoStore } from '@/stores/user_info_store';
     import { storeToRefs } from 'pinia';
+    import { useMoviesInfoStore } from '@/stores/movies_info_store';
 
     const userInfoStore = useUserInfoStore();
+    const moviesInfoStore = useMoviesInfoStore();
     const {
         second
-    } = storeToRefs(userInfoStore)
-    const typeMovies = ref({});
+    } = storeToRefs(userInfoStore);
+    const {
+        typeMovies
+    } = storeToRefs(moviesInfoStore);
     const typeMovieToAdd = ref({});
     const typeMovieToEdit = ref({});
     
-    async function fetchTypeMovies(){
-        const r = await axios.get("/api/type_movies/")
-        console.log(r.data)
-        typeMovies.value = r.data
-    }
     async function onTypeMovieAdd() {
         await axios.post("/api/type_movies/", {
             ...typeMovieToAdd.value
         });
-        await fetchTypeMovies();
+        await moviesInfoStore.fetchTypeMovies();
         typeMovieToAdd.value = {};
     }
     async function onTypeMovieDelete(typeMovie){
         console.log(typeMovie);
         await axios.delete(`/api/type_movies/${typeMovie.id}/`);
-        await fetchTypeMovies();
+        await moviesInfoStore.fetchTypeMovies();
     }
     async function onTypeMovieEdit(typeMovie){
         typeMovieToEdit.value = {...typeMovie};
@@ -38,12 +37,12 @@
         await axios.put(`/api/type_movies/${typeMovieToEdit.value.id}/`,{
             ...typeMovieToEdit.value,
         });
-        await fetchTypeMovies();
+        await moviesInfoStore.fetchTypeMovies();
     }
 
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
-        await fetchTypeMovies();
+        await moviesInfoStore.fetchTypeMovies();
     })
 </script>
 
