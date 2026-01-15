@@ -8,14 +8,29 @@
 
     const userInfoStore = useUserInfoStore();
     const {
-        second
-    } = storeToRefs(userInfoStore)
-    const ratingMovies = ref({})
-    const movies = ref({})
+        second,
+        is_staff
+    } = storeToRefs(userInfoStore);
+    const ratingMovies = ref([]);
+    const movies = ref([]);
+    const users = ref([]);
     const ratingMovieToAdd = ref({});
     const ratingMovieToEdit = ref({});
+    const userToFilter = ref('Все');
+    const movieToFilter = ref('Все');
     const movieById = computed(() => {
         return _.keyBy(movies.value, x => x.id)
+    })
+    const userById = computed(() => {
+        return _.keyBy(users.value, x => x.user)
+    })
+    const filteredRatingMovies = computed(() => {
+        console.log(movieToFilter)
+        console.log(userToFilter)
+        return ratingMovies.value.filter(rating => {
+            return (rating.movie === movieToFilter.value || movieToFilter.value === 'Все') &&
+            (rating.user === userToFilter.value || userToFilter.value === 'Все')
+        })
     })
     async function fetchRatingMovies(){
         const r = await axios.get("/api/ratings/")
@@ -26,6 +41,10 @@
         const r = await axios.get("/api/movies/")
         console.log(r.data)
         movies.value = r.data
+    }
+    async function fetchUsers(){
+        const r = await axios.get('/api/users/')
+        users.value = r.data
     }
     async function onRatingMovieAdd() {
         await axios.post("/api/ratings/", {
@@ -53,14 +72,15 @@
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchRatingMovies();
         await fetchMovies();
+        await fetchUsers();
     }) 
 </script>
 
 <template>
-    Оценки
-    {{ userInfoStore.username }}
     <div class="container">
         <div class = "p-2">
+            <b style = "font-size: large;">Приветствую, {{ userInfoStore.username }}</b>
+            <br>
             <form @submit.prevent.stop = "onRatingMovieAdd()">
                 <div class = "row">
                     <div class = "col-3">
@@ -81,18 +101,39 @@
                         <button class = 'btn btn-primary'>Добавить</button>
                     </div>
                 </div>
-                <div v-for="item in ratingMovies" class = 'ratingMovie-item'>
-                    <b>{{ item.rating_value }}</b> 
-                    <b>{{ movieById[item.movie]?.title }}</b>
-                    <b>{{ item.user }}</b> 
-                    <button v-if = "second == true" class = 'btn btn-success' @click="onRatingMovieEdit(item)"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#editRatingMovieModal">
-                        <i class="bi bi-pen-fill"></i>
-                    </button>
-                    <button class = 'btn btn-danger' @click="onRatingMovieDelete(item)"><i class="bi bi-x-lg"></i></button>
-                </div>
             </form>
+            <br>
+            <div class = 'row'>
+                <div class = 'col'>
+                    <div class = 'form-floating'>
+                        <select id="" class = 'form-select' v-model = "movieToFilter">
+                            <option value="Все">Все</option>
+                            <option :value="m.id" v-for = "m in movies">{{m.title}}</option>
+                        </select>
+                        <label for="floatingInput">Кино</label>
+                    </div>
+                </div>
+                <div class = 'col' v-if = "is_staff">
+                    <div class = 'form-floating'>
+                        <select id="" class = 'form-select' v-model = "userToFilter">
+                            <option value="Все">Все</option>
+                            <option :value="u.user" v-for = "u in users">{{u.username}}</option>
+                        </select>
+                        <label for="floatingInput">Пользователи</label>
+                    </div>
+                </div>
+            </div>
+            <div v-for="item in filteredRatingMovies" class = 'ratingMovie-item'>
+                <b>{{ item.rating_value }}</b> 
+                <b>{{ movieById[item.movie]?.title }}</b>
+                <b>{{ userById[item.user]?.username }}</b> 
+                <button v-if = "second == true" class = 'btn btn-success' @click="onRatingMovieEdit(item)"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editRatingMovieModal">
+                    <i class="bi bi-pen-fill"></i>
+                </button>
+                <button class = 'btn btn-danger' @click="onRatingMovieDelete(item)"><i class="bi bi-x-lg"></i></button>
+            </div>
         </div>
     </div>
     <div class="modal fade" id="editRatingMovieModal" tabindex="-1">

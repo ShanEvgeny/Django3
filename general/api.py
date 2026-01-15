@@ -2,13 +2,24 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import serializers
+from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import IsAdminUser, AllowAny
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import F
 import pyotp
 
 from general.models import UserProfile
+from general.serializers import UserProfileSerializer
 
-class UserProfilesViewSet(GenericViewSet):
-    queryset = UserProfile.objects.all()
+class UserProfilesViewSet(ListModelMixin, GenericViewSet):
+    queryset = UserProfile.objects.annotate(username = F('user__username')).all()
+    serializer_class = UserProfileSerializer
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [AllowAny]
+        return [permission() for permission in permission_classes]
     @action(url_path='my', methods=['GET'], detail=False)
     def get_my(self, *args, **kwargs):
         permissions = self.request.user.get_all_permissions()

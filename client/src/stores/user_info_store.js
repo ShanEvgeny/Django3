@@ -30,6 +30,7 @@ export const useUserInfoStore = defineStore("userInfoStore", () => {
     return {
         username,
         is_authenticated,
+        is_staff,
         second,
         fetchUserInfo,
         hasPermissions

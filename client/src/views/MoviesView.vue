@@ -23,6 +23,9 @@
     const movieEditImageURL = ref();
     const movieModalImageURL = ref();
     const movieModalBriefInfo = ref();
+    const typeMovieToFilter = ref('Все');
+    const directorToFilter = ref('Все');
+    const genreToFilter = ref('Все');
     const typeMovieById = computed(() => {
         return _.keyBy(typeMovies.value, x => x.id)
     })
@@ -31,6 +34,13 @@
     })
     const genreById = computed(() => {
         return _.keyBy(genres.value, x => x.id)
+    })
+    const filteredMovies = computed(() => {
+        return movies.value.filter(movie => {
+            return (movie.type_movie === typeMovieToFilter.value || typeMovieToFilter.value === 'Все') &&
+            (movie.directors.some(dir => dir == directorToFilter.value) || directorToFilter.value === 'Все') &&
+            (movie.genres.some(gnr => gnr == genreToFilter.value) || genreToFilter.value === 'Все')
+        })
     })
     
     async function fetchDirectors(){
@@ -216,7 +226,8 @@
             <div class = 'row'>
                 <div class = 'col'>
                     <div class = 'form-floating'>
-                        <select name="" id="" class = 'form-select'>
+                        <select id="" class = 'form-select' v-model = "typeMovieToFilter">
+                            <option value="Все">Все</option>
                             <option :value="t_m.id" v-for = "t_m in typeMovies">{{t_m.title}}</option>
                         </select>
                         <label for="floatingInput">Тип</label>
@@ -224,22 +235,24 @@
                 </div>
                 <div class = 'col'>
                     <div class = 'form-floating'>
-                        <select name="" id="" class = 'form-select'>
-                            <option :value="drctr.id" v-for = "drctr in directors">{{drctr.full_name}}</option>
+                        <select id="" class = 'form-select' v-model = "directorToFilter">
+                            <option value="Все">Все</option>
+                            <option :value="dir.id" v-for = "dir in directors">{{dir.full_name}}</option>
                         </select>
                         <label for="floatingInput">Режиссер</label>
                     </div>
                 </div>
                 <div class = 'col'>
                     <div class = 'form-floating'>
-                        <select name="" id="" class = 'form-select'>
+                        <select id="" class = 'form-select' v-model = "genreToFilter">
+                            <option value="Все">Все</option>
                             <option :value="gnr.id" v-for = "gnr in genres">{{gnr.title}}</option>
                         </select>
                         <label for="floatingInput">Жанр</label>
                     </div>
                 </div>
             </div>
-            <div v-for="item in movies" class = 'movie-item'>
+            <div v-for="item in filteredMovies" class = 'movie-item'>
                 <b>{{ item.title }} ({{ item.year_of_release }})</b> 
                 <b>{{ typeMovieById[item.type_movie]?.title }}</b>
                 <b>
