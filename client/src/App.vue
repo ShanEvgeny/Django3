@@ -7,6 +7,7 @@
     const router = useRouter();
     const userInfoStore = useUserInfoStore();
     const {
+        username,
         is_authenticated,
         second
     } = storeToRefs(userInfoStore)
@@ -72,7 +73,12 @@
             </div>
         </nav>
     </div>
-    <div class = "container"><router-view/></div>
+    <div class = "container">
+        <b v-if = "second == false">
+            Приветствую, {{ username }}! Для возможности редактирования, активируйте второй фактор
+        </b>
+        <router-view/>
+    </div>
 </template>
 
 <style scoped>

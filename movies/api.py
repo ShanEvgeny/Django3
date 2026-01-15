@@ -5,6 +5,10 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.db.models import Avg, Count, Min, Max
+from django.http import HttpResponse
+import openpyxl
+from openpyxl.drawing.image import Image
+from io import BytesIO
 
 from movies.models import Genre,TypeMovie,Director,Movie,RatingMovie
 from movies.serializers import GenreSerializer, TypeMovieSerializer, DirectorSerializer, MovieSerializer, RatingMovieSerializer
@@ -146,6 +150,27 @@ class MoviesViewset(
         stats['best_movie'] = self.queryset.order_by('avg_rating').last().title
         serializer = self.StatsSerializer(instance = stats)
         return Response(serializer.data)
+    @action(url_path='to-excel', methods = ['GET'], detail=False)
+    def export_to_excel(self, request, *args, **kwargs):
+        movies = self.get_queryset()
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Movies"
+        ws.append(["Id","Рейтинг","Название","Год выхода","Описание", "Тип кино","Режиссеры", "Жанры","Картинка"])
+        for m in movies:
+            dir_to_export = ', '.join([d.full_name for d in m.directors.all()])
+            gnr_to_export = ', '.join([g.title for g in m.genres.all()])
+            ws.append([m.id, m.avg_rating, m.title, m.year_of_release, 
+                       m.brief_information, 
+                       m.type_movie.title, 
+                       dir_to_export, gnr_to_export,
+                       m.picture.name if m.picture else ""])
+        buffer = BytesIO()  
+        wb.save(buffer)
+        buffer.seek(0)
+        response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="movies.xlsx"'
+        return response
 class RatingMoviesViewset(
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,

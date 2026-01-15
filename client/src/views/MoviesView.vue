@@ -9,7 +9,8 @@
 
     const userInfoStore = useUserInfoStore();
     const {
-        second
+        second,
+        is_staff
     } = storeToRefs(userInfoStore)
     const movies = ref([]);
     const typeMovies = ref([]);
@@ -140,6 +141,10 @@
     async function onClickMovieBriefInfo(brief_info) {
         movieModalBriefInfo.value = brief_info
     }
+    async function onExportToExcel(){
+        await axios.get('/api/movies/to-excel/')
+        window.open('/api/movies/to-excel/', '_blank');
+    }
 
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
@@ -250,6 +255,11 @@
                         </select>
                         <label for="floatingInput">Жанр</label>
                     </div>
+                </div>
+                <div class="col-auto" v-if = "is_staff">
+                    <button @click="onExportToExcel()" class = "btn btn-info">
+                        <i class="bi bi-file-earmark-arrow-down"></i> Экспортировать в Excel
+                    </button>
                 </div>
             </div>
             <div v-for="item in filteredMovies" class = 'movie-item'>
