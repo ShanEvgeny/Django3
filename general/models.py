@@ -9,7 +9,7 @@ class UserProfile(models.Model):
         reviewer = 'reviewer', 'рецензер'
         editor = 'editor', 'редактор'
     full_name = models.TextField(null = True)
-    date_of_birth = models.TextField(null = True)
+    date_of_birth = models.DateField(null = True)
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     type = models.TextField(choices = Type, null = True)
     totp_key = models.TextField(null = True)

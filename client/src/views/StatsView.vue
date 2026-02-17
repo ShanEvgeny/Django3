@@ -1,7 +1,6 @@
 <script setup>
-    import { computed, onBeforeMount, ref } from 'vue';
+    import { onBeforeMount, ref } from 'vue';
     import axios from 'axios';
-    import Cookies from 'js-cookie';
     import _ from 'lodash';
     const moviesStats = ref({});
     const directorsStats = ref({});
@@ -35,7 +34,7 @@
         ratingMoviesStats.value = r.data
     }
     onBeforeMount(async () => {
-        axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
+        //axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchMoviesStats();
         await fetchTypeMoviesStats();
         await fetchDirectorsStats();

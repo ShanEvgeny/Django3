@@ -3,6 +3,8 @@
     import { useUserInfoStore } from './stores/user_info_store';
     import { storeToRefs } from 'pinia';
     import { useRouter } from 'vue-router';
+    import { onBeforeMount} from 'vue';
+    import Cookies from 'js-cookie';
     
     const router = useRouter();
     const userInfoStore = useUserInfoStore();
@@ -19,6 +21,12 @@
         router.push('/login');
     }
     
+    onBeforeMount(() => {
+        axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
+        if (is_authenticated == false)
+            router.push('/login');
+    })
+
 </script>
 
 <template>
@@ -78,7 +86,7 @@
         </nav>
     </div>
     <div class = "container">
-        <b v-if = "second == false">
+        <b v-if = "second == false && is_authenticated">
             Приветствую, {{ username }}! Для возможности редактирования, активируйте второй фактор
         </b>
         <router-view/>

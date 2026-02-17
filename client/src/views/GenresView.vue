@@ -1,7 +1,6 @@
 <script setup>
-    import { computed, onBeforeMount, ref } from 'vue';
+    import { onBeforeMount, ref } from 'vue';
     import axios from 'axios';
-    import Cookies from 'js-cookie';
     import _ from 'lodash';
     import { useUserInfoStore } from '@/stores/user_info_store';
     import { storeToRefs } from 'pinia';
@@ -41,7 +40,7 @@
     }
 
     onBeforeMount(async () => {
-        axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
+        //axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await moviesInfoStore.fetchGenres();
     })
 </script>
