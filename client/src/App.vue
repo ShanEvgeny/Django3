@@ -9,7 +9,8 @@
     const {
         username,
         is_authenticated,
-        second
+        second,
+        is_staff
     } = storeToRefs(userInfoStore)
 
     async function onLogout() {
@@ -52,19 +53,22 @@
                             <router-link class="nav-link active" to="/second-login">Второй фактор</router-link>
                         </li>
                     </ul>
-                    <ul class = 'navbar-nav'>
+                    <ul  v-if="is_authenticated" class = 'navbar-nav'>
                         <li class = "nav-item dropdown">
                             <a class = "nav-link dropdown-toggle" href="#" role = "button" data-bs-toggle="dropdown">
-                                Пользователь
+                                Пользователь 
                             </a>
                             <ul class = 'dropdown-menu'>
                                 <li>
-                                    <a class = "dropdown-item" href="/admin">Админка</a>
+                                    <div class = "dropdown-item">Имя: {{ username }}</div>
+                                </li>
+                                <li>
+                                    <a v-if="is_staff" class = "dropdown-item" href="/admin">Админка</a>
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            <button @click = "onLogout()" v-if="is_authenticated" class = "btn btn-danger">
+                            <button @click = "onLogout()" class = "btn btn-danger">
                                 Выйти
                             </button>
                         </li>

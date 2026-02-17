@@ -56,9 +56,9 @@
             formData.append('picture',moviesPictureRef.value.files[0]);
         }
         formData.set('title', movieToAdd.value.title);
-        formData.append('year_of_release', movieToAdd.value.year_of_release);
+        formData.set('year_of_release', movieToAdd.value.year_of_release);
         formData.set('brief_information', movieToAdd.value.brief_information || '');
-        formData.append('type_movie', movieToAdd.value.type_movie || '');
+        formData.set('type_movie', movieToAdd.value.type_movie || '');
         selectedGenres.forEach(genreId => {
             formData.append('genres', genreId);
         });
@@ -83,8 +83,8 @@
     async function onMovieEdit(movie){
         moviesEditPictureRef.value.value = ''
         movieToEdit.value = {...movie};
-        movieToEdit.value.directors = movieToEdit.value.directors.map(id => directorById.value[id]).filter(Boolean);
-        movieToEdit.value.genres = movieToEdit.value.genres.map(id => genreById.value[id]).filter(Boolean);
+        movieToEdit.value.directors = movieToEdit.value.directors.map(id => directorById.value[id]);
+        movieToEdit.value.genres = movieToEdit.value.genres.map(id => genreById.value[id]);
         movieEditImageURL.value = movieToEdit.value.picture
     }
     async function onMovieUpdate(){
@@ -95,9 +95,9 @@
             formData.append('picture',moviesEditPictureRef.value.files[0]);
         }
         formData.set('title', movieToEdit.value.title);
-        formData.append('year_of_release', movieToEdit.value.year_of_release);
+        formData.set('year_of_release', movieToEdit.value.year_of_release);
         formData.set('brief_information', movieToEdit.value.brief_information || '');
-        formData.append('type_movie', movieToEdit.value.type_movie);
+        formData.set('type_movie', movieToEdit.value.type_movie);
         selectedGenres.forEach(genreId => {
             formData.append('genres', genreId);
         });

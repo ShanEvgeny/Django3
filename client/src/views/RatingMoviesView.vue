@@ -18,9 +18,6 @@
         ratingMovies,
         movies,
     } = storeToRefs(moviesInfoStore);
-    // const ratingMovies = ref([]);
-    // const movies = ref([]);
-    // const users = ref([]);
     const ratingMovieToAdd = ref({});
     const ratingMovieToEdit = ref({});
     const userToFilter = ref('Все');
@@ -39,20 +36,6 @@
             (rating.user === userToFilter.value || userToFilter.value === 'Все')
         })
     })
-    // async function fetchRatingMovies(){
-    //     const r = await axios.get("/api/ratings/")
-    //     console.log(r.data)
-    //     ratingMovies.value = r.data
-    // } 
-    // async function fetchMovies(){
-    //     const r = await axios.get("/api/movies/")
-    //     console.log(r.data)
-    //     movies.value = r.data
-    // }
-    // async function fetchUsers(){
-    //     const r = await axios.get('/api/users/')
-    //     users.value = r.data
-    // }
     async function onRatingMovieAdd() {
         await axios.post("/api/ratings/", {
             ...ratingMovieToAdd.value
@@ -86,8 +69,6 @@
 <template>
     <div class="container">
         <div class = "p-2">
-            <b style = "font-size: large;">Приветствую, {{ userInfoStore.username }}</b>
-            <br>
             <form @submit.prevent.stop = "onRatingMovieAdd()">
                 <div class = "row">
                     <div class = "col-3">

@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 
 export const useUserInfoStore = defineStore("userInfoStore", () => {
     const username = ref();
-    const is_authenticated = ref();
+    const is_authenticated = ref(null);
     const is_staff = ref();
     const permissions = ref([]);
     const second = ref(null);

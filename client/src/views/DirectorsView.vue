@@ -30,7 +30,7 @@
             formData.append('picture',directorsPictureRef.value.files[0]);
         }
         formData.set('full_name',directorToAdd.value.full_name);
-        formData.append('date_of_birth',directorToAdd.value.date_of_birth);
+        formData.set('date_of_birth',directorToAdd.value.date_of_birth);
         formData.set('short_biography',directorToAdd.value.short_biography);
         await axios.post("/api/directors/", formData, {
             headers:{
@@ -59,7 +59,7 @@
             formData.append('picture',directorsEditPictureRef.value.files[0]);
         }
         formData.set('full_name',directorToEdit.value.full_name);
-        formData.append('date_of_birth', directorToEdit.value.date_of_birth);
+        formData.set('date_of_birth', directorToEdit.value.date_of_birth);
         formData.set('short_biography',directorToEdit.value.short_biography);
         await axios.put(`/api/directors/${directorToEdit.value.id}/`, formData, {
             // ...directorToEdit.value,

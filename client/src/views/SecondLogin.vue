@@ -35,9 +35,11 @@
 </script>
 
 <template>
-    {{ totpURL }}
     <div class = 'container'>
-        <img :src="qrcodeURL" alt="">
+        <div>{{ totpURL }}</div>
+        <div style = "text-align: center;">
+            <img :src="qrcodeURL" alt="">
+        </div>
         <div class="d-flex flex-column p-3" style = "gap: 8px">
             <input placeholder="Уникальный код" class = 'form-control' type="text" v-model="key">
             <button @click = "onActivateSecondFactor()" class = 'btn btn-primary'>Активировать второй фактор</button>

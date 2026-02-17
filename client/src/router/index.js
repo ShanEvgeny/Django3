@@ -55,10 +55,10 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, from) => {
+router.beforeEach((to, from) => {
   const userInfoStore = useUserInfoStore();
-  await userInfoStore.fetchUserInfo();
-  if (!userInfoStore.is_authenticated && to.name !== 'Login'){
+  // await userInfoStore.fetchUserInfo();
+  if (userInfoStore.is_authenticated == false && to.name !== 'Login'){
     return {
       name: 'Login'
     }
