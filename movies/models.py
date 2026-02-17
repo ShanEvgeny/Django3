@@ -10,6 +10,8 @@ class TypeMovie(models.Model):
         verbose_name_plural = "Типы произведений"
     def __str__(self) -> str:
         return self.title  
+
+
 class Director(models.Model):
     full_name = models.TextField("ФИО")
     date_of_birth  = models.DateField("Дата рождения", null = True)
@@ -20,6 +22,8 @@ class Director(models.Model):
         verbose_name_plural = "Режиссеры"
     def __str__(self) -> str:
         return self.full_name
+    
+
 class Genre(models.Model):
     title = models.TextField("Название")
     description = models.TextField("Описание", null = True)
@@ -28,6 +32,8 @@ class Genre(models.Model):
         verbose_name_plural = "Жанры"
     def __str__(self) -> str:
         return self.title
+    
+
 class Movie(models.Model):
     title = models.TextField("Название")
     year_of_release = models.PositiveIntegerField("Год выхода", validators=[MinValueValidator(1895), MaxValueValidator(datetime.now().year)])
@@ -41,6 +47,8 @@ class Movie(models.Model):
         verbose_name_plural = "Кино"
     def __str__(self) -> str:
         return self.title
+    
+    
 class RatingMovie(models.Model):
     rating_value = models.PositiveIntegerField("Оценка", validators=[MinValueValidator(1), MaxValueValidator(10)])
     movie = models.ForeignKey('Movie', on_delete = models.CASCADE, verbose_name = "Название произведения", null = True)

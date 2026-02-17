@@ -14,12 +14,14 @@ from general.serializers import UserProfileSerializer
 class UserProfilesViewSet(ListModelMixin, GenericViewSet):
     queryset = UserProfile.objects.annotate(username = F('user__username')).all()
     serializer_class = UserProfileSerializer
+
     def get_permissions(self):
         if self.action == 'list':
             permission_classes = [IsAdminUser]
         else:
             permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
+    
     @action(url_path='my', methods=['GET'], detail=False)
     def get_my(self, *args, **kwargs):
         permissions = self.request.user.get_all_permissions()
@@ -32,6 +34,7 @@ class UserProfilesViewSet(ListModelMixin, GenericViewSet):
         if self.request.user.is_authenticated:
             data.update({'second': self.request.session.get('second') or False})
         return Response (data)
+    
     @action(url_path='login', methods=['POST'], detail=False)
     def process_login(self, *args, **kwargs):
         class LoginSerializer(serializers.Serializer):
@@ -51,12 +54,14 @@ class UserProfilesViewSet(ListModelMixin, GenericViewSet):
         return Response({
             'status': 'success'
         })
+    
     @action(url_path='logout', methods=['POST'], detail=False)
     def process_logout(self, *args, **kwargs):
         logout(self.request)
         return Response({
             'status': 'success'
         })
+    
     @action(url_path='get-totp', methods=['GET'], detail=False)
     def get_totp(self, *args, **kwargs):
         self.request.user.userprofile.totp_key = pyotp.random_base32()
@@ -68,6 +73,7 @@ class UserProfilesViewSet(ListModelMixin, GenericViewSet):
         return Response({
             'url': url
         })
+    
     @action(url_path='second-login', methods=['POST'], detail=False)
     def second_login(self, *args, **kwargs):
         key = self.request.user.userprofile.totp_key

@@ -23,6 +23,7 @@ class GenresViewset(
     GenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
             permission_classes = [IsAuthenticated]
@@ -31,11 +32,13 @@ class GenresViewset(
         else:
             permission_classes = [IsModerator | IsAdminUser]
         return [permission() for permission in permission_classes]
+    
     class StatsSerializer(serializers.Serializer):
         count = serializers.IntegerField()
         min = serializers.IntegerField()
         max = serializers.IntegerField()
         most_popular_genre = serializers.CharField()
+
     @action(url_path='stats', methods = ['GET'], detail=False)
     def get_stats(self, request, *args, **kwargs):
         stats_data = Genre.objects.annotate(movie_count = Count('movie_genres'))
@@ -47,6 +50,8 @@ class GenresViewset(
         stats['most_popular_genre'] = stats_data.order_by('movie_count').last().title
         serializer = self.StatsSerializer(instance = stats)
         return Response(serializer.data)
+    
+
 class DirectorsViewset(
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
@@ -56,6 +61,7 @@ class DirectorsViewset(
     GenericViewSet):
     queryset = Director.objects.all()
     serializer_class = DirectorSerializer
+
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
             permission_classes = [IsAuthenticated]
@@ -64,12 +70,14 @@ class DirectorsViewset(
         else:
             permission_classes = [IsModerator | IsAdminUser]
         return [permission() for permission in permission_classes]
+    
     class StatsSerializer(serializers.Serializer):
         count_directors = serializers.IntegerField()
         avg_birthday = serializers.FloatField()
         earliest_birthday = serializers.IntegerField()
         latest_birthday = serializers.IntegerField()
         most_productive_director = serializers.CharField()
+
     @action(url_path='stats', methods = ['GET'], detail=False)
     def get_stats(self, request, *args, **kwargs):
         stats = Director.objects.aggregate(
@@ -81,6 +89,8 @@ class DirectorsViewset(
         stats['most_productive_director'] = Director.objects.annotate(movie_count = Count('movie_directors')).order_by('movie_count').last().full_name
         serializer = self.StatsSerializer(instance = stats)
         return Response(serializer.data)
+    
+
 class TypeMoviesViewset(
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
@@ -90,6 +100,7 @@ class TypeMoviesViewset(
     GenericViewSet):
     queryset = TypeMovie.objects.all()
     serializer_class = TypeMovieSerializer
+
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
             permission_classes = [IsAuthenticated]
@@ -98,11 +109,13 @@ class TypeMoviesViewset(
         else:
             permission_classes = [IsModerator | IsAdminUser]
         return [permission() for permission in permission_classes]
+    
     class StatsSerializer(serializers.Serializer):
         count = serializers.IntegerField()
         min = serializers.IntegerField()
         max = serializers.IntegerField()
         most_popular_type_movie = serializers.CharField()
+
     @action(url_path='stats', methods = ['GET'], detail=False)
     def get_stats(self, request, *args, **kwargs):
         stats_data = TypeMovie.objects.annotate(movie_count = Count('movie'))
@@ -114,6 +127,8 @@ class TypeMoviesViewset(
         stats['most_popular_type_movie'] = stats_data.order_by('movie_count').last().title
         serializer = self.StatsSerializer(instance = stats)
         return Response(serializer.data)
+    
+
 class MoviesViewset(
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
@@ -125,6 +140,7 @@ class MoviesViewset(
                             .prefetch_related('directors','genres')\
                             .annotate(avg_rating = Avg('ratingmovie__rating_value')).all()
     serializer_class = MovieSerializer
+
     def get_permissions(self):
         if self.action == 'list' or  self.action == 'retrieve' or self.action == 'get_stats':
             permission_classes = [IsAuthenticated]
@@ -133,12 +149,14 @@ class MoviesViewset(
         else:
             permission_classes = [IsModerator | IsAdminUser]
         return [permission() for permission in permission_classes]
+    
     class StatsSerializer(serializers.Serializer):
         count_movies = serializers.IntegerField()
         avg_year_of_release = serializers.FloatField()
         oldest_movie = serializers.IntegerField()
         newest_movie = serializers.IntegerField()
         best_movie = serializers.CharField()
+
     @action(url_path='stats', methods = ['GET'], detail=False)
     def get_stats(self, request, *args, **kwargs):
         stats = Movie.objects.aggregate(
@@ -150,6 +168,7 @@ class MoviesViewset(
         stats['best_movie'] = self.queryset.order_by('avg_rating').last().title
         serializer = self.StatsSerializer(instance = stats)
         return Response(serializer.data)
+    
     @action(url_path='to-excel', methods = ['GET'], detail=False)
     def export_to_excel(self, request, *args, **kwargs):
         movies = self.get_queryset()
@@ -171,6 +190,8 @@ class MoviesViewset(
         response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="movies.xlsx"'
         return response
+    
+
 class RatingMoviesViewset(
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
@@ -180,17 +201,20 @@ class RatingMoviesViewset(
     GenericViewSet):
     queryset = RatingMovie.objects.select_related('movie','user').all()
     serializer_class = RatingMovieSerializer
+
     def get_permissions(self):
         if self.action == 'update' or self.action == 'partial_update':
             permission_classes = [SecondFactorPermission]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+    
     def get_queryset(self):
         qs = super().get_queryset()
         if (self.request.user.is_staff == False):
             qs = qs.filter(user=self.request.user)
         return qs
+    
     class StatsSerializer(serializers.Serializer):
         count_ratings = serializers.IntegerField()
         avg_rating = serializers.FloatField()
