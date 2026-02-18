@@ -40,6 +40,7 @@ class UserProfilesViewSet(ListModelMixin, GenericViewSet):
         class LoginSerializer(serializers.Serializer):
             username = serializers.CharField()
             password = serializers.CharField()
+            
         serializer = LoginSerializer(data = self.request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']

@@ -5,9 +5,11 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class TypeMovie(models.Model):
     title = models.TextField("Название")
     description = models.TextField("Описание", null = True)
+
     class Meta:
         verbose_name = "Тип произведения"
         verbose_name_plural = "Типы произведений"
+
     def __str__(self) -> str:
         return self.title  
 
@@ -17,9 +19,11 @@ class Director(models.Model):
     date_of_birth  = models.DateField("Дата рождения", null = True)
     short_biography = models.TextField("Краткая биография", null = True)
     picture = models.ImageField("Изображение", null=True, upload_to="directors")
+
     class Meta:
         verbose_name = "Режиссер"
         verbose_name_plural = "Режиссеры"
+
     def __str__(self) -> str:
         return self.full_name
     
@@ -27,9 +31,11 @@ class Director(models.Model):
 class Genre(models.Model):
     title = models.TextField("Название")
     description = models.TextField("Описание", null = True)
+
     class Meta:
         verbose_name = "Жанр"
         verbose_name_plural = "Жанры"
+
     def __str__(self) -> str:
         return self.title
     
@@ -42,9 +48,11 @@ class Movie(models.Model):
     directors = models.ManyToManyField('Director', related_name='movie_directors',verbose_name = 'Участники съемки')
     genres = models.ManyToManyField('Genre', related_name = 'movie_genres',verbose_name="Жанры")
     picture = models.ImageField("Изображение", null=True, upload_to="movies")
+
     class Meta:
         verbose_name = "Кино"
         verbose_name_plural = "Кино"
+
     def __str__(self) -> str:
         return self.title
     
@@ -53,6 +61,7 @@ class RatingMovie(models.Model):
     rating_value = models.PositiveIntegerField("Оценка", validators=[MinValueValidator(1), MaxValueValidator(10)])
     movie = models.ForeignKey('Movie', on_delete = models.CASCADE, verbose_name = "Название произведения", null = True)
     user = models.ForeignKey('auth.User',on_delete = models.CASCADE, verbose_name='Пользователь',null = True)
+    
     class Meta:
         unique_together = ['movie','user']
         verbose_name = "Оценка"

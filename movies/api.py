@@ -198,7 +198,7 @@ class RatingMoviesViewset(
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
     mixins.ListModelMixin,
-    GenericViewSet):
+    GenericViewSet):    
     queryset = RatingMovie.objects.select_related('movie','user').all()
     serializer_class = RatingMovieSerializer
 
